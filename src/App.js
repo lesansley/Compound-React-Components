@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react'
+import {Switch} from '../switch'
+
+function Toggle(props) {
+  const [on, setOn] = React.useState(false)
+  const toggle = () => setOn(!on)
+  return React.Children.map(props.children, child => {
+    return React.cloneElement(child, {on, toggle})
+  })
+}
+
+const ToggleOn = ({on, children}) => {
+  return <>{on ? children : null}</>
+}
+
+const ToggleOff = ({on, children}) => {
+  return <>{!on ? children : null}</>
+}
+
+const ToggleButton = ({on, toggle}) => {
+  return <Switch on={on} onClick={toggle} />
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Toggle>
+        <ToggleOn>The button is on</ToggleOn>
+        <ToggleOff>The button is off</ToggleOff>
+        <ToggleButton />
+      </Toggle>
     </div>
-  );
+  )
 }
+
+/*
+eslint
+  no-unused-vars: "off",
+*/
 
 export default App;
