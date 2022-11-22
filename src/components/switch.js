@@ -1,4 +1,4 @@
-import './switch.styles.css'
+import './styles/switch.css'
 import * as React from 'react'
 
 const noop = () => {}
