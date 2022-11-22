@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Switch} from '../switch'
+import {Switch} from './components/switch'
 
 function Toggle(props) {
   const [on, setOn] = React.useState(false)
