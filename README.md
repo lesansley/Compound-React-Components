@@ -43,7 +43,7 @@ The user of the compound component does not ever interact with the internal stat
 ```
 const ToggleContext = ()=>{
   const context = React.createContext(false)
-  context.displayName = ToggleContext //Setting the displayName allows it to be differentially displayed in React DevTools as ToggleContext.Provider and ToggleContext.Provider rather than the generic Context.Provider and Context.Consumer
+  context.displayName = "ToggleContext" //Setting the displayName allows it to be differentially displayed in React DevTools as ToggleContext.Provider and ToggleContext.Provider rather than the generic Context.Provider and Context.Consumer
   return context
 }
 
