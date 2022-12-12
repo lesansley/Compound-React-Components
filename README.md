@@ -1,5 +1,4 @@
-# arp-02
-## Compound React Components
+# Compound React Components
 
 > The Compound Components Pattern enables you to provide a set of components that implicitly share state for a simple yet powerful declarative API for reusable components.
 >
