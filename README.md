@@ -15,45 +15,98 @@ __React properties and methods__
 Pass in the children components as `props` to the parent component.
 e.g.
 
+`App.js`
+
 ```
- <Toggle> //Parent component
-  //Children components passed in as props
-  <ToggleOn>The button is on</ToggleOn>
-  <ToggleOff>The button is off</ToggleOff>
-  <span>Hello</span>
-  <ToggleButton />
-</Toggle>
+import { ToggleProvider, ToggleOn, ToggleOff, ToggleButton } from "./components/Toggle"
+
+function App() {
+  return (
+      <ToggleProvider>
+        <ToggleOn>The button is on</ToggleOn>
+        <ToggleOff>The button is off</ToggleOff>
+        <div>Normal HMTL element</div>
+        <div>
+          <ToggleButton />
+        </div>
+      </ToggleProvider>
+  )
+}
+  
+export default App
+```
+
+The user of the compound component does not ever interact with the internal state.
+
+`/context/index.js`
+
+```
+export const ToggleContext = React.createContext(false)
+
+```
+
+`/hooks/index.js`
+
+```
+import React from "react"
+import { ToggleContext } from "./context/"
+
+export function useToggle() {
+  const context = React.useContext(ToggleContext)
+  if (!context) { //Provides the user with a useful error message if they try to use any of the Toggle components outside ofr Toggle.Provider
+    throw new Error('useToggle must be utilized with Toggle')
+  }
+  return context
+}
+
 ```
 
 The parent component returns cloned children components with the implicit state and methods passed in as `props`.
 
+`Toggle.js`
+
 ```
-function Toggle(props) {
+import React from "react"
+import { ToggleContext } from "./context/"
+import { useToggle } from "./hooks/"
+import {Switch} from "./components/switch" //Component displaying the switch button
+
+function ToggleProvider(props) {
   const [on, setOn] = React.useState(false)
   const toggle = () => setOn(!on)
-  return React.Children.map(props.children, child => { //An array of the child components is returned
-    return React.cloneElement(child, {on, toggle}) //Child components are cloned
-  })
+
+  return (
+    <ToggleContext.Provider value={{on, toggle}}>
+      {React.Children.map(children, child => {
+        return typeof child.type === 'string' //skip html elements
+          ? child
+          : React.cloneElement(child, {on, toggle})
+      })}
+    </ToggleContext.Provider>
+  )
 }
-```
 
-It is possible to create an array of allowed child types that will receive the internal props.
-
-
-```
-const allowedTypes = ['ToggleOn', 'ToggleOff', 'ToggleButton']
-function Toggle(props) {
-  const [on, setOn] = React.useState(false)
-  const toggle = () => setOn(!on)
-  return React.Children.map(props.children, child => {
-    if(allowedTypes.includes(child.type) return React.cloneElement(child, {on, toggle})
-    return child
-  })
+function ToggleOn({children}) {
+  const {on} = useToggle()
+  return on ? children : null
 }
+
+function ToggleOff({children}) {
+  const {on} = useToggle()
+  return on ? null : children
+}
+
+function ToggleButton({...props}) {
+  const {on, toggle} = useToggle()
+  return <Switch on={on} onClick={toggle} {...props} />
+}
+
+export { ToggleProvider, ToggleButton, ToggleOn, ToggleOff }
 ```
 
-The user of the compound component does not ever interact with the internal state.
-Alternatively, a compound component can allow custom components to be passed in as children and these will receive the implicit state etc. as props.
+__Important:__ An error will display in the console if there is a child component that cannot accept the props e.g. a DOM component. To mitigate against this the the `React.Children.map()` needs to include an `if` statement.
+
+This allows custom components to be passed in as children and these will receive the implicit state etc. as props.
 
 __Example__
 
@@ -64,29 +117,30 @@ const MyCustomComponent = (on, toggle) => on? "I say the button is on" : "I say 
   <ToggleOn>The button is on</ToggleOn>
   <ToggleOff>The button is off</ToggleOff>
   <ToggleButton />
-  <MyCustomComponent />
+  <MyCustomComponent /> //This custom component receives the implicit state of the ToggleProvider
 </Toggle>
 ``` 
 
-__Important:__ An error will display in the console if there is a child component that cannot accept the props e.g. a DOM component. To mitigate against this the the `React.Children.map()` needs to include an `if` statement.
+Alternatively, you can create an array of allowed child types that will receive the internal props.
 
 ```
- <Toggle>
-  //Children components passed in as props
-  <ToggleOn>The button is on</ToggleOn>
-  <ToggleOff>The button is off</ToggleOff>
-  <span>Hello</span>
-  <ToggleButton />
-</Toggle>
+...
 
 function Toggle(props) {
   const [on, setOn] = React.useState(false)
   const toggle = () => setOn(!on)
-  return React.Children.map(props.children, child => {
-    if (typeof child.type === 'string') return child // If `child` is a DOM component then just return the component
-    return React.cloneElement(child, {on, toggle})
-  })
+  const allowedTypes = ['ToggleOn', 'ToggleOff', 'ToggleButton'] //Array of permitted element types
+  return  (
+    <ToggleContext.Provider value={{on, toggle}}>
+      {React.Children.map(props.children, child => {
+        if(allowedTypes.includes(child.type) return React.cloneElement(child, {on, toggle})
+        return child
+      })}
+    </ToggleContext.Provider>
+  )
 }
+
+...
 ```
 
 Attribution: https://epicreact.dev/modules/advance-react-patterns/ 
