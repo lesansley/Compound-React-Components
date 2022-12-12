@@ -141,7 +141,7 @@ function Toggle(props) {
   return  (
     <ToggleContext.Provider value={{on, toggle}}>
       {React.Children.map(props.children, child => {
-        if(allowedTypes.includes(child.type) return React.cloneElement(child, {on, toggle})
+        if(allowedTypes.includes(child.type.name) return React.cloneElement(child, {on, toggle})
         return child
       })}
     </ToggleContext.Provider>
