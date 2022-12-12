@@ -57,13 +57,15 @@ export { ToggleContext }
 import React from "react"
 import { ToggleContext } from "./context/"
 
-export function useToggle() {
+function useToggle() {
   const context = React.useContext(ToggleContext)
   if (!context) { //Provides the user with a useful error message if they try to use any of the Toggle components outside ofr Toggle.Provider
     throw new Error('useToggle must be utilized with Toggle')
   }
   return context
 }
+
+export { useToggle }
 
 ```
 
